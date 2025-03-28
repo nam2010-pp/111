@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Nối Từ Online</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Game Nối Từ Online</h1>
+    <input id="nameInput" placeholder="Nhập tên..." />
+    <button onclick="joinGame()">Tham gia</button>
+    
+    <div id="game" style="display: none;">
+        <h2>Người chơi</h2>
+        <div id="playersList"></div>
+
+        <h2>Lượt chơi: <span id="turnIndicator"></span></h2>
+
+        <h2>Lịch sử từ</h2>
+        <div id="wordList"></div>
+
+        <h2>Nhập từ mới</h2>
+        <input id="wordInput" placeholder="Nhập từ..." />
+        <button onclick="submitWord()">Gửi</button>
+        <p id="errorMsg" style="color: red;"></p>
+    </div>
+
+    <footer>
+        <p>Nam2010 2025 Copyright ©</p>
+    </footer>
+
+    <script>
+        const socket = io();
+        let playerName = "";
+
+        function joinGame() {
+            playerName = document.getElementById("nameInput").value;
+            if (playerName) {
+                socket.emit("joinGame", playerName);
+                document.getElementById("game").style.display = "block";
+            }
+        }
+
+        socket.on("updatePlayers", (players) => {
+            document.getElementById("playersList").innerHTML = players.map(p => `<p>${p.name}</p>`).join("");
+        });
+
+        function submitWord() {
+            const word = document.getElementById("wordInput").value;
+            if (word) {
+                socket.emit("submitWord", word);
+                document.getElementById("wordInput").value = "";
+            }
+        }
+
+        socket.on("wordSubmitted", ({ name, word }) => {
+            const div = document.createElement("div");
+            div.className = "wordAnimation";
+            div.innerHTML = `<b>${name}:</b> ${word}`;
+            document.getElementById("wordList").appendChild(div);
+        });
+
+        socket.on("updateWords", (words) => {
+            document.getElementById("wordList").innerHTML = words.map(w => `<div><b>${w.name}:</b> ${w.word}</div>`).join("");
+        });
+
+        socket.on("turnUpdate", (playerName) => {
+            document.getElementById("turnIndicator").innerText = playerName || "Chờ thêm người chơi...";
+        });
+
+        socket.on("invalidWord", (message) => {
+            document.getElementById("errorMsg").innerText = message;
+            setTimeout(() => {
+                document.getElementById("errorMsg").innerText = "";
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

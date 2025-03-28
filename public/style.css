@@ -1,0 +1,10 @@
+body { text-align: center; font-family: Arial, sans-serif; background-color: #f4f4f4; }
+input, button { padding: 10px; margin: 10px; }
+#wordList { margin-top: 20px; }
+.wordAnimation { animation: fadeIn 0.5s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+footer {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #666;
+}
